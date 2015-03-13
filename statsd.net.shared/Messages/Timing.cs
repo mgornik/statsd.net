@@ -10,9 +10,10 @@ namespace statsd.net.shared.Messages
   {
     public double ValueMS { get; set; }
 
-    public Timing(string name, double valueMS)
+    public Timing(string name, string source, double valueMS)
     {
       Name = name;
+      Source = source;
       ValueMS = valueMS;
       MessageType = MessageType.Timing;
     }

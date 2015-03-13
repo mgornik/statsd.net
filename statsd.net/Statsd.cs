@@ -71,15 +71,6 @@ namespace statsd.net
 
             // Initialise the core blocks
             _router = new StatsdMessageRouterBlock();
-            _messageParser = MessageParserBlockFactory.CreateMessageParserBlock(_tokenSource.Token,
-              SuperCheapIOC.Resolve<ISystemMetricsService>(),
-              _log);
-            _messageParser.LinkTo(_router);
-            _messageParser.Completion.LogAndContinueWith(_log, "MessageParser", () =>
-              {
-                  _log.Info("MessageParser: Completion signaled. Notifying the MessageBroadcaster.");
-                  _messageBroadcaster.Complete();
-              });
             _messageBroadcaster = new BroadcastBlock<Bucket>(Bucket.Clone);
             _messageBroadcaster.Completion.LogAndContinueWith(_log, "MessageBroadcaster", () =>
               {
@@ -102,6 +93,8 @@ namespace statsd.net
             var systemMetrics = SuperCheapIOC.Resolve<ISystemMetricsService>();
             systemMetrics.HideSystemStats = config.HideSystemStats;
 
+            LoadMessageParser(config);
+            
             LoadBackends(config, systemMetrics);
 
             // Load Aggregators
@@ -198,6 +191,20 @@ namespace statsd.net
             {
                 AddBackend(backend, systemMetrics, backend.Name);
             }
+        }
+
+        private void LoadMessageParser(StatsdnetConfiguration config)
+        {
+            _messageParser = MessageParserBlockFactory.CreateMessageParserBlock(_tokenSource.Token,
+              SuperCheapIOC.Resolve<ISystemMetricsService>(),
+              config.ExtensionConfiguration.NameAndSourceRegex,
+              _log);
+            _messageParser.LinkTo(_router);
+            _messageParser.Completion.LogAndContinueWith(_log, "MessageParser", () =>
+            {
+                _log.Info("MessageParser: Completion signaled. Notifying the MessageBroadcaster.");
+                _messageBroadcaster.Complete();
+            });
         }
 
         private void LoadListeners(StatsdnetConfiguration config, 

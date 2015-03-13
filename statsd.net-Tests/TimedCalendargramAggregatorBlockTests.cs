@@ -43,7 +43,7 @@ namespace statsd.net_Tests
         [TestMethod]
         public void LogOneSet_OneGraphiteLine_NoTimeChange_NoOutput_Success()
         {
-            _block.Post(new Calendargram("foo.set", "baz", "h"));
+            _block.Post(new Calendargram("foo.set", "src", "baz", "h"));
             _block.WaitUntilAllItemsProcessed();
             _intervalService.Pulse();
             _block.CompleteAndWait();
@@ -54,7 +54,7 @@ namespace statsd.net_Tests
         [TestMethod]
         public void LogOneSet_OneGraphiteLine_TimeChange_HasOutput_Success()
         {
-            _block.Post(new Calendargram("foo.set", "baz", "h"));
+            _block.Post(new Calendargram("foo.set", "src", "baz", "h"));
             _block.WaitUntilAllItemsProcessed();
             _timeWindowService.AddHours(1);
             _intervalService.Pulse();
@@ -67,8 +67,8 @@ namespace statsd.net_Tests
         [TestMethod]
         public void LogOneSet_TwoOfTheSameGraphiteLines_TimeChange_HasOutput_Success()
         {
-            _block.Post(new Calendargram("foo.set", "baz", "h"));
-            _block.Post(new Calendargram("foo.set", "baz", "h"));
+            _block.Post(new Calendargram("foo.set", "src", "baz", "h"));
+            _block.Post(new Calendargram("foo.set", "src", "baz", "h"));
             _block.WaitUntilAllItemsProcessed();
             _timeWindowService.AddHours(1);
             _intervalService.Pulse();
@@ -81,8 +81,8 @@ namespace statsd.net_Tests
         [TestMethod]
         public void LogOneSet_TwoDifferentGraphiteLines_TimeChange_HasOutput_Success()
         {
-            _block.Post(new Calendargram("foo.set", "baz", "h"));
-            _block.Post(new Calendargram("foo.set", "map", "h"));
+            _block.Post(new Calendargram("foo.set", "src", "baz", "h"));
+            _block.Post(new Calendargram("foo.set", "src", "map", "h"));
             _block.WaitUntilAllItemsProcessed();
             _timeWindowService.AddHours(1);
             _intervalService.Pulse();
@@ -95,11 +95,11 @@ namespace statsd.net_Tests
         [TestMethod]
         public void LogOneSet_TwoDifferentHours_TimeChange_PulseInCurrentHour_HasOutput_Success()
         {
-            _block.Post(new Calendargram("foo.set", "baz", "h"));
+            _block.Post(new Calendargram("foo.set", "src", "baz", "h"));
             _block.WaitUntilAllItemsProcessed();
             Thread.Sleep(500);
             _timeWindowService.AddHours(1);
-            _block.Post(new Calendargram("foo.set", "map", "h"));
+            _block.Post(new Calendargram("foo.set", "src", "map", "h"));
             _block.WaitUntilAllItemsProcessed();
             Thread.Sleep(500);
             _intervalService.Pulse();
@@ -112,11 +112,11 @@ namespace statsd.net_Tests
         [TestMethod]
         public void LogOneSet_TwoDifferentHours_TimeChange_PulseInNextHour_HasOutput_Success()
         {
-            _block.Post(new Calendargram("foo.set", "baz", "h"));
+            _block.Post(new Calendargram("foo.set", "src", "baz", "h"));
             _block.WaitUntilAllItemsProcessed();
             Thread.Sleep(500);
             _timeWindowService.AddHours(1);
-            _block.Post(new Calendargram("foo.set", "map", "h"));
+            _block.Post(new Calendargram("foo.set", "src", "map", "h"));
             _block.WaitUntilAllItemsProcessed();
             Thread.Sleep(500);
             _timeWindowService.AddHours(1);
@@ -131,11 +131,11 @@ namespace statsd.net_Tests
         [TestMethod]
         public void LogOneSet_TwoDifferentDays_TimeChange_PulseInNextDay_HasOutput_Success()
         {
-            _block.Post(new Calendargram("foo.set", "baz", "d"));
+            _block.Post(new Calendargram("foo.set", "src", "baz", "d"));
             _block.WaitUntilAllItemsProcessed();
             Thread.Sleep(500);
             _timeWindowService.AddDays(1);
-            _block.Post(new Calendargram("foo.set", "map", "d"));
+            _block.Post(new Calendargram("foo.set", "src", "map", "d"));
             _block.WaitUntilAllItemsProcessed();
             Thread.Sleep(500);
             _timeWindowService.AddDays(1);
@@ -150,11 +150,11 @@ namespace statsd.net_Tests
         [TestMethod]
         public void LogOneSet_TwoDifferentDaysOfWeek_TimeChange_PulseInNextDayOfWeek_HasOutput_Success()
         {
-            _block.Post(new Calendargram("foo.set", "baz", "dow"));
+            _block.Post(new Calendargram("foo.set", "src", "baz", "dow"));
             _block.WaitUntilAllItemsProcessed();
             Thread.Sleep(500);
             _timeWindowService.AddDays(1);
-            _block.Post(new Calendargram("foo.set", "map", "dow"));
+            _block.Post(new Calendargram("foo.set", "src", "map", "dow"));
             _block.WaitUntilAllItemsProcessed();
             Thread.Sleep(500);
             _timeWindowService.AddDays(1);
@@ -169,11 +169,11 @@ namespace statsd.net_Tests
         [TestMethod]
         public void LogOneSet_TwoDifferentWeeks_TimeChange_PulseInNextWeek_HasOutput_Success()
         {
-            _block.Post(new Calendargram("foo.set", "baz", "w"));
+            _block.Post(new Calendargram("foo.set", "src", "baz", "w"));
             _block.WaitUntilAllItemsProcessed();
             Thread.Sleep(500);
             _timeWindowService.AddDays(7);
-            _block.Post(new Calendargram("foo.set", "map", "w"));
+            _block.Post(new Calendargram("foo.set", "src", "map", "w"));
             _block.WaitUntilAllItemsProcessed();
             Thread.Sleep(500);
             _timeWindowService.AddDays(7);
@@ -188,11 +188,11 @@ namespace statsd.net_Tests
         [TestMethod]
         public void LogOneSet_TwoDifferentMonths_TimeChange_PulseInNextMonth_HasOutput_Success()
         {
-            _block.Post(new Calendargram("foo.set", "baz", "m"));
+            _block.Post(new Calendargram("foo.set", "src", "baz", "m"));
             _block.WaitUntilAllItemsProcessed();
             Thread.Sleep(500);
             _timeWindowService.AddMonths(1);
-            _block.Post(new Calendargram("foo.set", "map", "m"));
+            _block.Post(new Calendargram("foo.set", "src", "map", "m"));
             _block.WaitUntilAllItemsProcessed();
             Thread.Sleep(500);
             _timeWindowService.AddMonths(1);
@@ -207,11 +207,11 @@ namespace statsd.net_Tests
         [TestMethod]
         public void LogOneSet_TwoDifferentFiveMinutes_TimeChange_PulseInNextFiveMinutes_HasOutput_Success()
         {
-            _block.Post(new Calendargram("foo.set", "baz", "5min"));
+            _block.Post(new Calendargram("foo.set", "src", "baz", "5min"));
             _block.WaitUntilAllItemsProcessed();
             Thread.Sleep(500);
             _timeWindowService.AddMinutes(5);
-            _block.Post(new Calendargram("foo.set", "map", "5min"));
+            _block.Post(new Calendargram("foo.set", "src", "map", "5min"));
             _block.WaitUntilAllItemsProcessed();
             Thread.Sleep(500);
             _timeWindowService.AddMinutes(5);
@@ -226,11 +226,11 @@ namespace statsd.net_Tests
         [TestMethod]
         public void LogOneSet_TwoDifferentOneMinutes_TimeChange_PulseInNextOneMinute_HasOutput_Success()
         {
-            _block.Post(new Calendargram("foo.set", "baz", "1min"));
+            _block.Post(new Calendargram("foo.set", "src", "baz", "1min"));
             _block.WaitUntilAllItemsProcessed();
             Thread.Sleep(500);
             _timeWindowService.AddMinutes(1);
-            _block.Post(new Calendargram("foo.set", "map", "1min"));
+            _block.Post(new Calendargram("foo.set", "src", "map", "1min"));
             _block.WaitUntilAllItemsProcessed();
             Thread.Sleep(500);
             _timeWindowService.AddMinutes(1);
@@ -245,8 +245,8 @@ namespace statsd.net_Tests
         [TestMethod]
         public void LogOneSet_SameMinute_NoTimeChange_PulseInSameMinute_HasNoOutput_Success()
         {
-            _block.Post(new Calendargram("foo.set", "baz", "1min"));
-            _block.Post(new Calendargram("foo.set", "map", "1min"));
+            _block.Post(new Calendargram("foo.set", "src", "baz", "1min"));
+            _block.Post(new Calendargram("foo.set", "src", "map", "1min"));
             _block.WaitUntilAllItemsProcessed();
             Thread.Sleep(500);
             _intervalService.Pulse();
@@ -258,7 +258,7 @@ namespace statsd.net_Tests
         [TestMethod]
         public void LogOneSet_OneGraphiteLine_IrrelevantTimeChange_NoOutput_Success()
         {
-            _block.Post(new Calendargram("foo.set", "baz", "d"));
+            _block.Post(new Calendargram("foo.set", "src", "baz", "d"));
             _block.WaitUntilAllItemsProcessed();
             _timeWindowService.AddHours(1);
             _intervalService.Pulse();

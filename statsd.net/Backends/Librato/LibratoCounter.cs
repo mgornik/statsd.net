@@ -14,8 +14,8 @@ namespace statsd.net.Backends.Librato
     public string name { get; set; }
     public double value { get; set; }
 
-    public LibratoCounter(string name, double value, long epoch)
-      : base(LibratoMetricType.Counter, epoch)
+    public LibratoCounter(string name, double value, long epoch, string source)
+      : base(LibratoMetricType.Counter, epoch, source)
     {
       this.name = Regex.Replace(name, LibratoBackend.ILLEGAL_NAME_CHARACTERS, "_");
       this.value = value;

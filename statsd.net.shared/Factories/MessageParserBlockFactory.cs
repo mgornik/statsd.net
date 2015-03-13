@@ -17,13 +17,14 @@ namespace statsd.net.shared.Factories
   {
     public static TransformBlock<String, StatsdMessage> CreateMessageParserBlock(CancellationToken cancellationToken,
       ISystemMetricsService systemMetrics,
+      string sourceAndNameRegex,
       ILog log)
     {
       var block = new TransformBlock<String, StatsdMessage>(
         (line) =>
         {
           systemMetrics.LogCount("parser.linesSeen");
-          StatsdMessage message = StatsdMessageFactory.ParseMessage(line);
+          StatsdMessage message = StatsdMessageFactory.ParseMessage(line, sourceAndNameRegex);
           if (message is InvalidMessage)
           {
             systemMetrics.LogCount("parser.badLinesSeen");

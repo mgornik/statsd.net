@@ -1,6 +1,12 @@
 # statsd.net
 A high-performance stats collection service based on [etsy's](http://etsy.com/) [statsd service](https://github.com/etsy/statsd/) and written in c#.net.
 
+# This fork/branch
+
+This copy of the original project has added an ability to operate with metrics sources. Standard statsd service does not support metric sources, but Librato service does. This version of the library is aimed at Librato users, to allow them to publish metric sources along with the other data.
+
+This service is meant to be used with statsd.net C# client library (https://github.com/mgornik/statsd.net). That client library allows for publishing metrics with defined source.
+
 ## Key Features
 * Enables multiple latency buckets for the same metric to measure things like p90/5min and p90/1hour in one go
 * Can receive stats over UDP, TCP and HTTP.

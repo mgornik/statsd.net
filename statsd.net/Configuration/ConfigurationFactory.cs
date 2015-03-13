@@ -102,6 +102,22 @@ namespace statsd.net.Configuration
                         break;
                 }
             }
+
+            // Extensions configuration
+            foreach (var item in statsdnet.Element("extensions").Elements())
+            {
+                var configuration = new ExtensionConfiguration();
+                switch (item.Name.LocalName)
+                {
+                    case "sourceAndName":
+                        configuration.NameAndSourceRegex = item.Attribute("regex").Value;
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException("Not sure what this extension is: " + item.Name);
+                }
+                config.ExtensionConfiguration = configuration;
+            }
+            
             return config;
         }
     }

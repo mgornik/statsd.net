@@ -11,7 +11,7 @@ namespace statsd.net.shared.Messages
     public double Value { get; set; }
     public float? SampleRate { get; set; }
 
-    public Counter(string name, double value)
+    public Counter(string name, string source, double value)
     {
       if (value < 0)
       {
@@ -19,11 +19,12 @@ namespace statsd.net.shared.Messages
       }
 
       Name = name;
+      Source = source;
       Value = value;
       MessageType = MessageType.Counter;
     }
 
-    public Counter(string name, double value, float sampleRate)
+    public Counter(string name, string source, double value, float sampleRate)
     {
       if (value < 0)
       {
@@ -31,6 +32,7 @@ namespace statsd.net.shared.Messages
       }
 
       Name = name;
+      Source = source;
       Value = value;
       SampleRate = sampleRate;
       MessageType = MessageType.Counter;

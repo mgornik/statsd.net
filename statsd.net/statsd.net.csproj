@@ -82,6 +82,7 @@
     <Compile Include="Configuration\AggregatorConfiguration.cs" />
     <Compile Include="Configuration\BackendConfiguration.cs" />
     <Compile Include="Configuration\ConfigurationFactory.cs" />
+    <Compile Include="Configuration\ExtensionConfiguration.cs" />
     <Compile Include="Configuration\ListenerConfiguration.cs" />
     <Compile Include="Configuration\StatsdnetConfiguration.cs" />
     <Compile Include="Framework\PassThroughBlockFactory.cs" />

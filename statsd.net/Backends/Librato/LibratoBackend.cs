@@ -134,11 +134,11 @@ namespace statsd.net.Backends.Librato
           {
             if (_config.CountersAsGauges)
             {
-              _batchBlock.Post(new LibratoGauge(counterBucket.RootNamespace + count.Key, count.Value, bucket.Epoch));
+              _batchBlock.Post(new LibratoGauge(counterBucket.RootNamespace + count.Key.Item1, count.Value, bucket.Epoch, count.Key.Item2));
             }
             else
             {
-              _batchBlock.Post(new LibratoCounter(counterBucket.RootNamespace + count.Key, count.Value, bucket.Epoch));
+              _batchBlock.Post(new LibratoCounter(counterBucket.RootNamespace + count.Key.Item1, count.Value, bucket.Epoch, count.Key.Item2));
             }
           }
           break;
@@ -146,20 +146,21 @@ namespace statsd.net.Backends.Librato
           var gaugeBucket = bucket as GaugesBucket;
           foreach (var gauge in gaugeBucket.Gauges)
           {
-            _batchBlock.Post(new LibratoGauge(gaugeBucket.RootNamespace + gauge.Key, gauge.Value, bucket.Epoch));
+            _batchBlock.Post(new LibratoGauge(gaugeBucket.RootNamespace + gauge.Key.Item1, gauge.Value, bucket.Epoch, gauge.Key.Item2));
           }
           break;
         case BucketType.Timing:
           var timingBucket = bucket as LatencyBucket;
           foreach (var timing in timingBucket.Latencies)
           {
-            _batchBlock.Post(new LibratoTiming(timingBucket.RootNamespace + timing.Key,
+            _batchBlock.Post(new LibratoTiming(timingBucket.RootNamespace + timing.Key.Item1,
               timing.Value.Count,
               timing.Value.Sum,
               timing.Value.SumSquares,
               timing.Value.Min,
               timing.Value.Max,
-              bucket.Epoch));
+              bucket.Epoch,
+              timing.Key.Item2));
           }
           break;
         case BucketType.Percentile:
@@ -169,9 +170,10 @@ namespace statsd.net.Backends.Librato
           {
             if (percentileBucket.TryComputePercentile(pair, out percentileValue))
             {
-              _batchBlock.Post(new LibratoGauge(percentileBucket.RootNamespace + pair.Key + percentileBucket.PercentileName,
+              _batchBlock.Post(new LibratoGauge(percentileBucket.RootNamespace + pair.Key.Item1 + percentileBucket.PercentileName,
                 percentileValue,
-                bucket.Epoch));
+                bucket.Epoch,
+                pair.Key.Item2));
             }
           }
           break;
@@ -194,7 +196,7 @@ namespace statsd.net.Backends.Librato
     private void PostToLibratoInternal(LibratoMetric[] lines)
     {
       var pendingLines = 0;
-      foreach (var epochGroup in lines.GroupBy(p => p.Epoch))
+      foreach (var epochGroup in lines.GroupBy(p => p.measure_time))
       {
         var payload = GetPayload(epochGroup);
         pendingLines = payload.gauges.Length + payload.counters.Length;
@@ -249,7 +251,7 @@ namespace statsd.net.Backends.Librato
       payload.gauges = gauges;
       payload.counters = counts;
       payload.measure_time = epochGroup.Key;
-      payload.source = _source;
+
       return payload;
     }
 

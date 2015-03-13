@@ -24,7 +24,7 @@ namespace statsd.net.Framework
       ILog log,
       int maxItemsPerBucket = 1000)
     {
-      var latencies = new ConcurrentDictionary<string, LatencyDatapointBox>();
+      var latencies = new ConcurrentDictionary<Tuple<string, string>, LatencyDatapointBox>();
       var root = rootNamespace;
       var ns = String.IsNullOrEmpty(rootNamespace) ? "" : rootNamespace + ".";
 	  
@@ -32,7 +32,7 @@ namespace statsd.net.Framework
         {
           var latency = p as Timing;
 
-          latencies.AddOrUpdate(latency.Name,
+          latencies.AddOrUpdate(new Tuple<string, string>(latency.Name, latency.Source),
               (key) =>
               {
                 return new LatencyDatapointBox(maxItemsPerBucket, latency.ValueMS);

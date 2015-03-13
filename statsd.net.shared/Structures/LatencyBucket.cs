@@ -12,10 +12,10 @@ namespace statsd.net.shared.Structures
 {
   public class LatencyBucket : Bucket
   {
-    public KeyValuePair<string, LatencyDatapointBox>[] Latencies { get; private set; }
+    public KeyValuePair<Tuple<string, string>, LatencyDatapointBox>[] Latencies { get; private set; }
     private bool _calculateSumSquares;
 
-    public LatencyBucket(KeyValuePair<string, LatencyDatapointBox>[] latencies, 
+    public LatencyBucket(KeyValuePair<Tuple<string, string>, LatencyDatapointBox>[] latencies, 
       long epoch,
       string rootNamespace,
       bool calculateSumSquares)
@@ -47,7 +47,7 @@ namespace statsd.net.shared.Structures
       }
     }
 
-    private GraphiteLine [] MakeGraphiteLines ( KeyValuePair<string, LatencyDatapointBox> latency )
+    private GraphiteLine [] MakeGraphiteLines ( KeyValuePair<Tuple<string, string>, LatencyDatapointBox> latency )
     {
       if ( _calculateSumSquares )
       {

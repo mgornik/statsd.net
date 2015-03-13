@@ -38,7 +38,7 @@ namespace statsd.net_Tests
     [TestMethod]
     public void LogOneGauge_OneGraphiteLine_Success()
     {
-      _block.Post(new Gauge("foo", 1));
+      _block.Post(new Gauge("foo", "src", 1));
       _block.WaitUntilAllItemsProcessed();
       _intervalService.Pulse();
       _block.CompleteAndWait();
@@ -50,7 +50,7 @@ namespace statsd.net_Tests
     [TestMethod]
     public void LogMultipleValuesForOneGauge_OneGraphiteLine_Success()
     {
-      TestUtility.Range(100, false).ForEach(p => _block.Post(new Gauge("foo", p)));
+      TestUtility.Range(100, false).ForEach(p => _block.Post(new Gauge("foo", "src", p)));
       _block.WaitUntilAllItemsProcessed();
       _intervalService.Pulse();
       _block.CompleteAndWait();
@@ -62,8 +62,8 @@ namespace statsd.net_Tests
     [TestMethod]
     public void LogTwoDifferentGauges_TwoGraphiteLines_Success()
     {
-      _block.Post(new Gauge("foo", 1));
-      _block.Post(new Gauge("bar", 1));
+      _block.Post(new Gauge("foo", "src", 1));
+      _block.Post(new Gauge("bar", "src", 1));
       _block.WaitUntilAllItemsProcessed();
       _intervalService.Pulse();
       _block.CompleteAndWait();
@@ -76,8 +76,8 @@ namespace statsd.net_Tests
     [TestMethod]
     public void NonZeroGauges_CarriedOverAfterFlush_Success()
     {
-      _block.Post(new Gauge("foo", 1));
-      _block.Post(new Gauge("bar", 1));
+      _block.Post(new Gauge("foo", "src", 1));
+      _block.Post(new Gauge("bar", "src", 1));
 
       _block.WaitUntilAllItemsProcessed();
       _intervalService.Pulse();

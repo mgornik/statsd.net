@@ -22,8 +22,9 @@ namespace statsd.net.Backends.Librato
         double sumOfSquares,
         double min,
         double max,
-        long epoch)
-        : base(LibratoMetricType.Timing, epoch)
+        long epoch,
+        string source)
+        : base(LibratoMetricType.Timing, epoch, source)
       {
         this.name = Regex.Replace(name, LibratoBackend.ILLEGAL_NAME_CHARACTERS, "_");
         this.count = count;

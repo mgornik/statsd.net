@@ -10,9 +10,10 @@ namespace statsd.net.shared.Messages
   {
     public string Value { get; set; }
 
-    public Set(string name, string value)
+    public Set(string name, string source, string value)
     {
       Name = name;
+      Source = source;
       Value = value;
       MessageType = MessageType.Set;
     }

@@ -40,7 +40,7 @@ namespace statsd.net_Tests
         null,
         _log.Object);
 
-      TestUtility.Range(100, false).ForEach(p => _block.Post(new Timing("foo", p)));
+      TestUtility.Range(100, false).ForEach(p => _block.Post(new Timing("foo", "src", p)));
       _block.WaitUntilAllItemsProcessed();
       _intervalService.Pulse();
 
@@ -57,7 +57,7 @@ namespace statsd.net_Tests
         null,
         _log.Object);
 
-      TestUtility.Range(100, false).ForEach(p => _block.Post(new Timing("foo", p)));
+      TestUtility.Range(100, false).ForEach(p => _block.Post(new Timing("foo", "src", p)));
       _block.WaitUntilAllItemsProcessed();
       _intervalService.Pulse();
 
@@ -74,10 +74,10 @@ namespace statsd.net_Tests
         null,
         _log.Object);
 
-      _block.Post(new Timing("foo", 100));
-      _block.Post(new Timing("foo", 200));
-      _block.Post(new Timing("foo", 300));
-      _block.Post(new Timing("foo", 400));
+      _block.Post(new Timing("foo", "src", 100));
+      _block.Post(new Timing("foo", "src", 200));
+      _block.Post(new Timing("foo", "src", 300));
+      _block.Post(new Timing("foo", "src", 400));
       _block.WaitUntilAllItemsProcessed();
       _intervalService.Pulse();
 
@@ -97,9 +97,9 @@ namespace statsd.net_Tests
       var pulseDate = DateTime.Now;
 
       // Bucket one
-      TestUtility.Range(5, false).ForEach(p => _block.Post(new Timing("foo", p * 100)));
+      TestUtility.Range(5, false).ForEach(p => _block.Post(new Timing("foo", "src", p * 100)));
       // Bucket two
-      TestUtility.Range(5, false).ForEach(p => _block.Post(new Timing("bar", p * 100)));
+      TestUtility.Range(5, false).ForEach(p => _block.Post(new Timing("bar", "src", p * 100)));
       _block.WaitUntilAllItemsProcessed();
       _intervalService.Pulse(pulseDate);
 

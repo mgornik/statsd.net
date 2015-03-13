@@ -37,7 +37,7 @@ namespace statsd.net_Tests
     [TestMethod]
     public void LogOneCount_OneGraphiteLine_Success()
     {
-      _block.Post(new Counter("foo", 1));
+      _block.Post(new Counter("foo", "src", 1));
       _block.WaitUntilAllItemsProcessed();
       _intervalService.Pulse();
       _block.CompleteAndWait();
@@ -49,8 +49,8 @@ namespace statsd.net_Tests
     [TestMethod]
     public void LogOneHunderedCounts_OneGraphiteLine_Success()
     {
-      _block.Post(new Counter("foo", 1));
-      TestUtility.Range(100, false).ForEach(p => _block.Post(new Counter("foo", p)));
+      _block.Post(new Counter("foo", "src", 1));
+      TestUtility.Range(100, false).ForEach(p => _block.Post(new Counter("foo", "src", p)));
       _block.WaitUntilAllItemsProcessed();
       _intervalService.Pulse();
       _block.CompleteAndWait();
@@ -62,8 +62,8 @@ namespace statsd.net_Tests
     [TestMethod]
     public void LogTwoSeparateMetrics_TwoGraphiteLines_Success()
     {
-      _block.Post(new Counter("foo", 1));
-      _block.Post(new Counter("bar", 1));
+      _block.Post(new Counter("foo", "src", 1));
+      _block.Post(new Counter("bar", "src", 1));
       _block.WaitUntilAllItemsProcessed();
       _intervalService.Pulse();
       _block.CompleteAndWait();

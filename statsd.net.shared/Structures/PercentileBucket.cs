@@ -13,11 +13,11 @@ namespace statsd.net.shared.Structures
 {
   public class PercentileBucket : Bucket
   {
-    public KeyValuePair<string, DatapointBox>[] Timings { get; private set; }
+    public KeyValuePair<Tuple<string, string>, DatapointBox>[] Timings { get; private set; }
     public int Percentile { get; private set; }
     public string PercentileName { get; private set; }
 
-    public PercentileBucket(KeyValuePair<string, DatapointBox>[] timings,
+    public PercentileBucket(KeyValuePair<Tuple<string, string>, DatapointBox>[] timings,
       long epoch,
       string rootNamespace,
       string percentileName,
@@ -64,7 +64,7 @@ namespace statsd.net.shared.Structures
       }
     }
 
-    public bool TryComputePercentile(KeyValuePair<string, DatapointBox> pair, out double percentileValue)
+    public bool TryComputePercentile(KeyValuePair<Tuple<string, string>, DatapointBox> pair, out double percentileValue)
     {
       return PercentileCalculator.TryCompute(
         pair.Value.ToArray().ToList(),
@@ -84,7 +84,7 @@ namespace statsd.net.shared.Structures
             new GraphiteLine(
               RootNamespace + measurements.Key + PercentileName,
               percentileValue,
-              Epoch ).ToString()
+              Epoch).ToString()
               );
         }
       }

@@ -23,14 +23,15 @@ namespace statsd.net.Framework
       IIntervalService intervalService,
       ILog log)
     {
-      var gauges = new ConcurrentDictionary<string, double>();
+      var gauges = new ConcurrentDictionary<Tuple<string, string>, double>();
       var root = rootNamespace;
       var ns = String.IsNullOrEmpty(rootNamespace) ? "" : rootNamespace + ".";
 
       var incoming = new ActionBlock<StatsdMessage>(p =>
         {
           var gauge = p as Gauge;
-          gauges.AddOrUpdate(gauge.Name, gauge.Value, (key, oldValue) => gauge.Value);
+
+          gauges.AddOrUpdate(new Tuple<string, string>(gauge.Name, gauge.Source), gauge.Value, (key, oldValue) => gauge.Value);
         },
         Utility.UnboundedExecution());
 

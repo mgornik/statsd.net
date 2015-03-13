@@ -23,6 +23,7 @@ namespace statsd.net.Configuration
     public List<ListenerConfiguration> Listeners { get; private set; }
     public Dictionary<string, XElement> BackendConfigurations { get; private set; }
     public Dictionary<string, AggregatorConfiguration> Aggregators { get; private set; }
+    public ExtensionConfiguration ExtensionConfiguration { get; set; }
 
     [ImportMany]
     public IEnumerable<IBackend> AvailableBackends { get; set; }

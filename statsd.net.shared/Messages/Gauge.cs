@@ -10,9 +10,10 @@ namespace statsd.net.shared.Messages
   {
     public double Value { get; set; }
 
-    public Gauge(string name, double value)
+    public Gauge(string name, string source, double value)
     {
       Name = name;
+      Source = source;
       Value = value;
       MessageType = MessageType.Gauge;
     }

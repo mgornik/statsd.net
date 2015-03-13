@@ -21,7 +21,7 @@ namespace statsd.net.shared.Messages
         public const string PERIOD_MONTH = "m";
         public const string PERIOD_DAY_OF_WEEK = "dow";
 
-        public Calendargram(string name, string value, string period)
+        public Calendargram(string name, string source, string value, string period)
         {
             if (value.Length > MAX_VALUE_LENGTH)
             {
@@ -29,6 +29,7 @@ namespace statsd.net.shared.Messages
             }
             base.MessageType = MessageType.Calendargram;
             base.Name = name;
+            base.Source = source;
             Value = value;
             _rawPeriod = period;
             switch (period)
@@ -44,7 +45,7 @@ namespace statsd.net.shared.Messages
             }
         }
 
-        public Calendargram(string name, string value, CalendargramRetentionPeriod period)
+        public Calendargram(string name, string source, string value, CalendargramRetentionPeriod period)
         {
             if (value.Length > MAX_VALUE_LENGTH)
             {
@@ -52,6 +53,7 @@ namespace statsd.net.shared.Messages
             }
             base.MessageType = MessageType.Calendargram;
             base.Name = name;
+            base.Source = source;
             Value = value;
             Period = period;
         }

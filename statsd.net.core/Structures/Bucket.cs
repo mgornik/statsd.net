@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks.Dataflow;
 using statsd.net.core.Messages;
+using System;
 
 namespace statsd.net.core.Structures
 {
@@ -33,10 +34,10 @@ namespace statsd.net.core.Structures
 
   public abstract class Bucket<TItemType> : Bucket
   {
-    public KeyValuePair<string, TItemType>[] Items { get; private set; }
+    public KeyValuePair<Tuple<string, string>, TItemType>[] Items { get; private set; }
 
     public Bucket(BucketType bucketType, 
-      KeyValuePair<string, TItemType>[] items, 
+      KeyValuePair<Tuple<string, string>, TItemType>[] items, 
       long epoch, 
       string rootNamespace = "")
       : base(bucketType, epoch, rootNamespace)

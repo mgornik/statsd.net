@@ -9,11 +9,13 @@ namespace statsd.net.Backends.Librato
   public abstract class LibratoMetric
   {
     public LibratoMetricType MetricType { get; private set; }
-    public long Epoch { get; private set; }
-    public LibratoMetric(LibratoMetricType type, long epoch)
+    public long measure_time { get; private set; }
+    public string source { get; private set; }
+    public LibratoMetric(LibratoMetricType type, long epoch, string metricSource)
     {
       MetricType = type;
-      Epoch = epoch;
+      measure_time = epoch;
+      source = String.IsNullOrWhiteSpace(metricSource) ? null : metricSource;
     }
   }
 }

@@ -31,6 +31,7 @@ namespace statsd.net_Tests
       _log = new Mock<ILog>();
       _block = MessageParserBlockFactory.CreateMessageParserBlock(new CancellationToken(), 
         _systemMetrics.Object,
+        "",
         _log.Object);
     }
 
@@ -39,7 +40,7 @@ namespace statsd.net_Tests
     {
       _systemMetrics.Setup(p => p.LogCount("parser.linesSeen", 1)).Verifiable();
 
-      _block.Post(new Counter("foo", 1).ToString());
+      _block.Post(new Counter("foo", "src", 1).ToString());
       _block.WaitUntilAllItemsProcessed();
 
       _systemMetrics.VerifyAll();

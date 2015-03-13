@@ -96,8 +96,8 @@ namespace statsd.net.Framework
 
                           var metricList = metrics.Select(metric =>
                           {
-                              return new KeyValuePair<string, double>(
-                                metric.Key,
+                              return new KeyValuePair<Tuple<string, string>, double>(
+                                new Tuple<string, string>(metric.Key, ""),
                                 metric.Value
                               );
                           }).ToArray();
