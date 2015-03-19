@@ -103,20 +103,47 @@ namespace statsd.net.Configuration
                 }
             }
 
+            var configuration = new ExtensionConfiguration();
             // Extensions configuration
             foreach (var item in statsdnet.Element("extensions").Elements())
             {
-                var configuration = new ExtensionConfiguration();
                 switch (item.Name.LocalName)
                 {
                     case "sourceAndName":
                         configuration.NameAndSourceRegex = item.Attribute("regex").Value;
                         break;
+                    case "dynamicSources":
+                        var dynamicSources = new List<ExtensionConfiguration.DynamicSource>();
+                        foreach (var subItem in item.Elements())
+                        {
+                            if (subItem.Name.LocalName != "source")
+                            {
+                                throw new ArgumentOutOfRangeException("Not sure what this dynamic source is: " + item.Name);
+                            }
+                            int keep;
+                            if (!int.TryParse(subItem.Attribute("keep").Value, out keep))
+                            {
+                                throw new ArgumentOutOfRangeException("Attribute must have integer value: " + "keep");
+                            }
+                            ExtensionConfiguration.DynamicSource.RankingOperation operation;
+                            if (Enum.TryParse(subItem.Attribute("ranking").Value, out operation))
+                            {
+                                throw new ArgumentOutOfRangeException("Attribute could not be parsed: " + "ranking");
+                            }
+                            dynamicSources.Add(new ExtensionConfiguration.DynamicSource
+                                {
+                                    NameRegex = subItem.Attribute("nameRegex").Value,
+                                    Keep = keep,
+                                    Ranking = operation
+                                });
+                        }
+                        configuration.DynamicSources = dynamicSources;
+                        break;
                     default:
                         throw new ArgumentOutOfRangeException("Not sure what this extension is: " + item.Name);
                 }
-                config.ExtensionConfiguration = configuration;
             }
+            config.ExtensionConfiguration = configuration;
             
             return config;
         }

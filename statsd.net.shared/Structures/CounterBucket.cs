@@ -12,7 +12,7 @@ namespace statsd.net.shared.Structures
 {
   public class CounterBucket : Bucket<double>
   {
-    public CounterBucket(KeyValuePair<Tuple<string, string>, double>[] counts, long epoch, string rootNamespace = "", string source = "")
+    public CounterBucket(KeyValuePair<Tuple<string, string>, double>[] counts, long epoch, string rootNamespace = "")
       : base(BucketType.Count, counts, epoch, rootNamespace)
     {
     }
