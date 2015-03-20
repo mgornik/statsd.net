@@ -12,13 +12,15 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
+using statsd.net.Configuration;
 
 namespace statsd.net.Framework
 {
   public class TimedLatencyAggregatorBlockFactory
   {
     public static ActionBlock<StatsdMessage> CreateBlock(ITargetBlock<Bucket> target,
-      string rootNamespace, 
+      string rootNamespace,
+      IEnumerable<ExtensionConfiguration.DynamicSource> dynamicSources,
       IIntervalService intervalService,
       bool calculateSumSquares,
       ILog log,
@@ -44,7 +46,9 @@ namespace statsd.net.Framework
               });
         },
         new ExecutionDataflowBlockOptions() { MaxDegreeOfParallelism = DataflowBlockOptions.Unbounded });
-      
+
+      var dynamicSourcesList = dynamicSources.ToList();
+
       intervalService.Elapsed += (sender, e) =>
         {
           if (latencies.Count == 0)
@@ -52,9 +56,34 @@ namespace statsd.net.Framework
             return;
           }
 
-          var latencyBucket = new LatencyBucket(latencies.ToArray(), e.Epoch, ns, calculateSumSquares);
+          LatencyBucket bucket;
+
+          // If there are dynamic sources in configuration, payload will be selectively assembled:
+          if (dynamicSources != null)
+          {
+            var payload = new List<KeyValuePair<Tuple<string, string>, LatencyDatapointBox>>();
+
+            foreach (var nameGroup in latencies.GroupBy(c => c.Key.Item1))
+            {
+              IEnumerable<KeyValuePair<Tuple<string, string>, LatencyDatapointBox>> single = nameGroup;
+              var dyn = DynamicSourceHelper.IsThisDynamicSource(nameGroup.Key, dynamicSourcesList);
+              if (dyn != null)
+              {
+                single = DynamicSourceHelper.GetRankedSources(nameGroup, dyn.Ranking, dyn.Keep).ToList();
+              }
+              payload.AddRange(single);
+            }
+
+            bucket = new LatencyBucket(payload.ToArray(), e.Epoch, ns, calculateSumSquares);
+          }
+          // Without dynamic sources, payload is everything that is currently in counters:
+          else
+          {
+            bucket = new LatencyBucket(latencies.ToArray(), e.Epoch, ns, calculateSumSquares);
+          }
+
           latencies.Clear();
-          target.Post(latencyBucket);
+          target.Post(bucket);
         };
 
       incoming.Completion.ContinueWith(p =>

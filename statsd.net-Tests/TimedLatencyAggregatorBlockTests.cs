@@ -14,6 +14,7 @@ using statsd.net;
 using System.Threading;
 using log4net;
 using Moq;
+using statsd.net.Configuration;
 
 namespace statsd.net_Tests
 {
@@ -38,6 +39,7 @@ namespace statsd.net_Tests
     {
       _block = TimedLatencyAggregatorBlockFactory.CreateBlock(_outputBuffer,
         String.Empty,
+        Enumerable.Empty<ExtensionConfiguration.DynamicSource>(),
         _intervalService,
         true,
         _log.Object);
@@ -65,6 +67,7 @@ namespace statsd.net_Tests
     {
       _block = TimedLatencyAggregatorBlockFactory.CreateBlock(_outputBuffer,
         String.Empty,
+        Enumerable.Empty<ExtensionConfiguration.DynamicSource>(),
         _intervalService,
         true,
         _log.Object);
@@ -87,6 +90,7 @@ namespace statsd.net_Tests
     {
       _block = TimedLatencyAggregatorBlockFactory.CreateBlock(_outputBuffer,
         String.Empty,
+        Enumerable.Empty<ExtensionConfiguration.DynamicSource>(),
         _intervalService,
         true,
         _log.Object);
@@ -122,6 +126,7 @@ namespace statsd.net_Tests
     {
       _block = TimedLatencyAggregatorBlockFactory.CreateBlock(_outputBuffer,
         String.Empty,
+        Enumerable.Empty<ExtensionConfiguration.DynamicSource>(),
         _intervalService,
         true,
         _log.Object);

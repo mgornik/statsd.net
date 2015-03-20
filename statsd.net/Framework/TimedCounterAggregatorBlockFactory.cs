@@ -11,6 +11,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
+using statsd.net.Configuration;
+using System.Text.RegularExpressions;
 
 namespace statsd.net.Framework
 {
@@ -18,6 +20,7 @@ namespace statsd.net.Framework
   {
     public static ActionBlock<StatsdMessage> CreateBlock(ITargetBlock<Bucket> target,
       string rootNamespace, 
+      IEnumerable<ExtensionConfiguration.DynamicSource> dynamicSources,
       IIntervalService intervalService,
       ILog log)
     {
@@ -32,6 +35,8 @@ namespace statsd.net.Framework
         },
         new ExecutionDataflowBlockOptions() { MaxDegreeOfParallelism = DataflowBlockOptions.Unbounded });
 
+      var dynamicSourcesList = dynamicSources.ToList();
+      
       intervalService.Elapsed += (sender, e) =>
         {
           if (counters.Count == 0)
@@ -39,7 +44,32 @@ namespace statsd.net.Framework
             return;
           }
 
-          var bucket = new CounterBucket(counters.ToArray(), e.Epoch, ns);
+          CounterBucket bucket;
+
+          // If there are dynamic sources in configuration, payload will be selectively assembled:
+          if (dynamicSources != null)
+          {
+            var payload = new List<KeyValuePair<Tuple<string, string>, double>>();
+
+            foreach (var nameGroup in counters.GroupBy(c => c.Key.Item1))
+            {
+              IEnumerable<KeyValuePair<Tuple<string, string>, double>> single = nameGroup;
+              var dyn = DynamicSourceHelper.IsThisDynamicSource(nameGroup.Key, dynamicSourcesList);
+              if (dyn != null)
+              {
+                single = DynamicSourceHelper.GetRankedSources(nameGroup, dyn.Ranking, dyn.Keep).ToList();
+              } 
+              payload.AddRange(single);
+            }
+
+            bucket = new CounterBucket(payload.ToArray(), e.Epoch, ns);
+          }
+          // Without dynamic sources, payload is everything that is currently in counters:
+          else
+          {
+            bucket = new CounterBucket(counters.ToArray(), e.Epoch, ns);
+          }
+
           counters.Clear();
           target.Post(bucket);
         };

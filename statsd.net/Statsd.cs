@@ -130,6 +130,7 @@ namespace statsd.net
                         AddAggregator(MessageType.Counter,
                           TimedCounterAggregatorBlockFactory.CreateBlock(messageBroadcaster,
                             counter.Namespace,
+                            config.ExtensionConfiguration.DynamicSources,
                             intervalService,
                             _log),
                           systemMetrics);
@@ -140,6 +141,7 @@ namespace statsd.net
                           TimedGaugeAggregatorBlockFactory.CreateBlock(messageBroadcaster,
                             gauge.Namespace,
                             gauge.RemoveZeroGauges,
+                            config.ExtensionConfiguration.DynamicSources,
                             intervalService,
                             _log),
                           systemMetrics);
@@ -159,6 +161,7 @@ namespace statsd.net
                         AddAggregator(MessageType.Timing,
                           TimedLatencyAggregatorBlockFactory.CreateBlock(messageBroadcaster,
                             timer.Namespace,
+                            config.ExtensionConfiguration.DynamicSources,
                             intervalService,
                             timer.CalculateSumSquares,
                             _log),

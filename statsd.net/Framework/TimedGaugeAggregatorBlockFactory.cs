@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
+using statsd.net.Configuration;
 
 namespace statsd.net.Framework
 {
@@ -20,6 +21,7 @@ namespace statsd.net.Framework
     public static ActionBlock<StatsdMessage> CreateBlock(ITargetBlock<Bucket> target,
       string rootNamespace, 
       bool removeZeroGauges,
+      IEnumerable<ExtensionConfiguration.DynamicSource> dynamicSources,
       IIntervalService intervalService,
       ILog log)
     {
@@ -35,31 +37,63 @@ namespace statsd.net.Framework
         },
         Utility.UnboundedExecution());
 
+      var dynamicSourcesList = dynamicSources.ToList();
+
       intervalService.Elapsed += (sender, e) =>
         {
           if (gauges.Count == 0)
           {
             return;
           }
-          var items = gauges.ToArray();
-          var bucket = new GaugesBucket(items, e.Epoch, ns);
+
           if (removeZeroGauges)
           {
+            var toErase = new List<Tuple<string, string>>();
             // Get all zero-value gauges
-            double placeholder;
             var zeroGauges = 0;
-            for (int index = 0; index < items.Length; index++)
+            foreach (var entry in gauges)
             {
-              if (items[index].Value == 0)
+              if (entry.Value == 0.0)
               {
-                gauges.TryRemove(items[index].Key, out placeholder);
+                toErase.Add(entry.Key);
                 zeroGauges += 1;
               }
+            }
+            foreach (var eraseKey in toErase)
+            {
+              double placeholder;
+              gauges.TryRemove(eraseKey, out placeholder);
             }
             if (zeroGauges > 0)
             {
               log.InfoFormat("Removed {0} empty gauges.", zeroGauges);
             }
+          }
+
+          GaugesBucket bucket;
+
+          // If there are dynamic sources in configuration, payload will be selectively assembled:
+          if (dynamicSources != null)
+          {
+            var payload = new List<KeyValuePair<Tuple<string, string>, double>>();
+
+            foreach (var nameGroup in gauges.GroupBy(c => c.Key.Item1))
+            {
+              IEnumerable<KeyValuePair<Tuple<string, string>, double>> single = nameGroup;
+              var dyn = DynamicSourceHelper.IsThisDynamicSource(nameGroup.Key, dynamicSourcesList);
+              if (dyn != null)
+              {
+                single = DynamicSourceHelper.GetRankedSources(nameGroup, dyn.Ranking, dyn.Keep).ToList();
+              }
+              payload.AddRange(single);
+            }
+
+            bucket = new GaugesBucket(payload.ToArray(), e.Epoch, ns);
+          }
+          // Without dynamic sources, payload is everything that is currently in counters:
+          else
+          {
+            bucket = new GaugesBucket(gauges.ToArray(), e.Epoch, ns);
           }
           
           gauges.Clear();

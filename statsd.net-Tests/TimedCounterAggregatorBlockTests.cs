@@ -11,6 +11,7 @@ using System.Threading.Tasks.Dataflow;
 using statsd.net;
 using log4net;
 using Moq;
+using statsd.net.Configuration;
 
 namespace statsd.net_Tests
 {
@@ -30,6 +31,7 @@ namespace statsd.net_Tests
       _log = new Mock<ILog>();
       _block = TimedCounterAggregatorBlockFactory.CreateBlock(_outputBuffer,
         String.Empty,
+        Enumerable.Empty<ExtensionConfiguration.DynamicSource>(),
         _intervalService,
         _log.Object);
     }
