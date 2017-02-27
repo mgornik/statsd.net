@@ -76,7 +76,10 @@ namespace statsd.net.Backends.Librato
           maxBatchSize: configElement.ToInt("maxBatchSize"),
           countersAsGauges: configElement.ToBoolean("countersAsGauges")
         );
-      
+
+      _log.InfoFormat("Librato email: {0}, numRetries: {1}, retryDelay: {2}, postTimeout: {3}, maxBatchSize: {4}, countersAsGauges: {5}",
+        config.Email, config.NumRetries, config.RetryDelay, config.PostTimeout, config.MaxBatchSize, config.CountersAsGauges);
+
       _config = config;
       _source = collectorName;
       _serviceVersion = Assembly.GetEntryAssembly().GetName().Version.ToString();
@@ -197,6 +200,7 @@ namespace statsd.net.Backends.Librato
       foreach (var epochGroup in lines.GroupBy(p => p.Epoch))
       {
         var payload = GetPayload(epochGroup);
+
         pendingLines = payload.gauges.Length + payload.counters.Length;
         _systemMetrics.LogGauge("backends.librato.lines", pendingLines);
         Interlocked.Add(ref _pendingOutputCount, pendingLines);
@@ -206,6 +210,19 @@ namespace statsd.net.Backends.Librato
         request.AddHeader("User-Agent", "statsd.net-librato-backend/" + _serviceVersion);
         request.AddBody(payload);
 
+        var parametersSb = new StringBuilder();
+        foreach (var h in request.Parameters.Where(p => p.Type == ParameterType.HttpHeader))
+        {
+          parametersSb.AppendFormat("\nName: {0}, Value: {1}", h.Name, h.Value);
+        }
+        var bodySb = new StringBuilder();
+        foreach (var h in request.Parameters.Where(p => p.Type == ParameterType.RequestBody))
+        {
+          bodySb.AppendFormat("\nValue: {0}", h.Value);
+        }
+        _log.DebugFormat("Request Method: {0}, URI: {1}, Parameters: {2}", request.Method, _client.BuildUri(request), parametersSb);
+        _log.DebugFormat("Request Body: {0}", bodySb);
+
         _retryPolicy.ExecuteAction(() =>
           {
             bool succeeded = false;
@@ -213,6 +230,15 @@ namespace statsd.net.Backends.Librato
             {
               _systemMetrics.LogCount("backends.librato.post.attempt");
               var result = _client.Execute(request);
+
+              var headersSb = new StringBuilder();
+              foreach (var h in result.Headers.Where(h => h.Type == ParameterType.HttpHeader))
+              {
+                headersSb.AppendFormat("\nName: {0}, Value: {1}", h.Name, h.Value);
+              }
+              _log.DebugFormat("Librato response: StatusCode: {0}, Content: {1}, ResponseURI: {2}, ErrorMessage: {3}, Headers: {4}",
+                result.StatusCode, result.Content, result.ResponseUri, result.ErrorMessage, headersSb);
+
               if (result.StatusCode == HttpStatusCode.Unauthorized)
               {
                 _systemMetrics.LogCount("backends.librato.error.unauthorised");
